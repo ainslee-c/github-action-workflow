@@ -1,0 +1,22 @@
+name: Hello World Workflow
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:  # Allows you to run this workflow manually from the Actions tab
+
+jobs:
+  hello-world:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        
+      - name: Hello World
+        run: echo "Hello World! This is my first GitHub Action!"
+        
+      - name: Display date
+        run: echo "Current date is $(date)"
