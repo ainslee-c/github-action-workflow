@@ -1,0 +1,67 @@
+name: Enhanced Workflow
+
+# Triggers: On push, pull request, and scheduled every day at 9 AM
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  schedule:
+    - cron: '0 9 * * *'  # Runs at 9 AM every day
+  workflow_dispatch:  # Allows manual triggering from the Actions tab
+
+jobs:
+  # Job 1: Your original Hello World
+  hello-world:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        
+      - name: Hello World
+        run: echo "Hello World! This is my first GitHub Action!"
+        
+      - name: Display date
+        run: echo "Current date is $(date)"
+  
+  # Job 2: Simple Test Example
+  test:
+    runs-on: ubuntu-latest
+    needs: hello-world  # This job will run after hello-world completes
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      
+      # Create a simple test file to check
+      - name: Create test file
+        run: |
+          mkdir -p tests
+          echo 'function sum(a, b) { return a + b; }' > tests/math.js
+          echo 'console.log(sum(2, 3) === 5 ? "Test passed" : "Test failed");' >> tests/math.js
+      
+      # Run the test
+      - name: Run tests
+        run: node tests/math.js
+  
+  # Job 3: Security Scan Example
+  security-scan:
+    runs-on: ubuntu-latest
+    needs: test  # This job will run after test completes
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        
+      # Basic file permission check (simple security example)
+      - name: Check file permissions
+        run: |
+          echo "Checking for files with excessive permissions..."
+          find . -type f -perm /o=w -exec ls -l {} \; || echo "No world-writable files found."
+      
+      # Basic secret scanning example
+      - name: Check for hardcoded secrets
+        run: |
+          echo "Scanning for potential hardcoded secrets..."
+          ! grep -r "password\|secret\|key\|token" --include="*.{js,json,yml,yaml}" . || echo "Warning: Potential secrets found!"
